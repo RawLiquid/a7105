@@ -18,7 +18,7 @@
 #include "a7105.h"
 
 
-const u8 allowed_ch[] = {0x14, 0x1e, 0x28, 0x32, 0x3c, 0x46, 0x50, 0x5a, 0x64, 0x6e, 0x78, 0x82};
+const uint8_t allowed_ch[] = {0x14, 0x1e, 0x28, 0x32, 0x3c, 0x46, 0x50, 0x5a, 0x64, 0x6e, 0x78, 0x82};
 int no_allowed_channels = 12;
 
 
@@ -50,7 +50,7 @@ void A7105_Reset()
 }    
 
 int A7105_calibrate_IF() {
-    u8 calibration_result;
+    uint8_t calibration_result;
     
     //IF Filter Bank Calibration
     // write 001 to this register, chip will then calibrate IF filter bank, and lower the flag when the calibration is complete
@@ -77,15 +77,15 @@ int A7105_calibrate_IF() {
     A7105_ReadReg(A7105_24_VCO_CURCAL);
 
     // check to see if auto calibration failure flag is set. If so, give error message and abort
-    if(calibration_result & A7105_MASK_FBCF) {
+    if(calibration_result & A7105_MASK_CER) {
         if (verbose) Serial.println("Error: IF filter calibration failed.");
         return 2;
     }
     return 0;
 }
 
-int A7105_calibrate_VCB(u8 channel) {
-    u8 calibration_result;
+int A7105_calibrate_VCB(uint8_t channel) {
+    uint8_t calibration_result;
     
     A7105_WriteReg(A7105_0F_CHANNEL, channel);
     
@@ -108,7 +108,7 @@ int A7105_calibrate_VCB(u8 channel) {
     
     // if auto calibration fail flag is high, print error and abort
     calibration_result = A7105_ReadReg(A7105_25_VCO_SBCAL_I);
-    if (calibration_result & A7105_MASK_VBCF) {
+    if (calibration_result & A7105_MASK_XER) {
           if (verbose) Serial.print("Error: VCO bank calibration failed on channel ");
           Serial.println(channel);
           return 2;  
@@ -130,7 +130,7 @@ void A7105_SetPower(int power)
     TXPOWER_100mW  = 1dBm   == PAC=3 TBG=7
     TXPOWER_150mW  = 1dBm   == PAC=3 TBG=7
     */
-    u8 pac, tbg;
+    uint8_t pac, tbg;
     switch(power) {
         case 0: pac = 0; tbg = 0; break;
         case 1: pac = 0; tbg = 1; break;
@@ -183,16 +183,16 @@ void A7105_Strobe(enum A7105_State state)
 // Normal registers, essentially everything except the FIFO buffer and the ID register,
 // hold only one byte. These two functions therefore transfer only one byte.
 
-void A7105_WriteReg(u8 address, u8 data)
+void A7105_WriteReg(uint8_t address, uint8_t data)
 {
     CS_LO();
     SPI.transfer(address); // spi_xfer(SPI2, address);
     SPI.transfer(data);    // spi_xfer(SPI2, data); 
     CS_HI();
 }
-u8 A7105_ReadReg(u8 address)
+uint8_t A7105_ReadReg(uint8_t address)
 {
-    u8 data;
+    uint8_t data;
     int i;
     CS_LO();
 
@@ -204,7 +204,7 @@ u8 A7105_ReadReg(u8 address)
 }
  
  
-void A7105_WriteData(u8 *dpbuffer, u8 len, u8 channel)
+void A7105_WriteData(uint8_t *dpbuffer, uint8_t len, uint8_t channel)
 {
     int i;
     CS_LO();
@@ -222,7 +222,7 @@ void A7105_WriteData(u8 *dpbuffer, u8 len, u8 channel)
     CS_HI();
 }
 
-void A7105_ReadData(u8 *dpbuffer, u8 len)
+void A7105_ReadData(uint8_t *dpbuffer, uint8_t len)
 {
     A7105_Strobe(A7105_RST_RDPTR);
     /*
@@ -267,7 +267,7 @@ void A7105_ReadID()
 
 
 // make a distinctive test packet to test that transmission is working correctly
-void make_test_packet(u8 testpacket[]) {
+void make_test_packet(uint8_t testpacket[]) {
     testpacket[0] = 0x00;
     testpacket[1] = 0x11;
     testpacket[2] = 0x22;
@@ -287,7 +287,7 @@ void make_test_packet(u8 testpacket[]) {
 }
 
 // prnt the contents of packet in a human-readable way
-void printpacket(u8 packet[]) {
+void printpacket(uint8_t packet[]) {
   int j;
   //Serial.print("Packet received: ");
   if (verbose) {
@@ -330,13 +330,13 @@ void A7105_shoutchannel() {
 // Eavesdrop on a hubsan exchange. This must be started prior to the binding exchange.
 void eavesdrop() {
     verbose = true;
-    u8 prebind_packet[16];
+    uint8_t prebind_packet[16];
     int wait_start, wait_end;
     
     Serial.println("Eavesdropping...");
     
     // use findchannel to locate the channel which is currently being broadcast on
-    u8 sess_channel = A7105_findchannel();
+    uint8_t sess_channel = A7105_findchannel();
     
     // strobe to receiver mode, intercept a packet    
     A7105_Strobe(A7105_RX);  
@@ -379,7 +379,7 @@ void eavesdrop() {
 }
     
 // find which channel the binding exchange is taking place on
-u8 A7105_findchannel() { 
+uint8_t A7105_findchannel() { 
     int pack_count;
     while (true) {
       // scan all allowed channels
@@ -421,7 +421,7 @@ int A7105_sniffchannel() {
 }
 
 // version of sniffchannel which sniffs a channel other than the one which is currently set.
-void A7105_sniffchannel(u8 _channel) {
+void A7105_sniffchannel(uint8_t _channel) {
       if (verbose) Serial.print("Switching to channel ");
       Serial.println(_channel);
       Serial.println("");
@@ -433,7 +433,7 @@ void A7105_sniffchannel(u8 _channel) {
 
 // function to sniff a list of channels and see what is being broadcast on them
 // attempts sniffing 20 times on each channel before looping, print any results to serial
-void A7105_scanchannels(const u8 channels[]) {
+void A7105_scanchannels(const uint8_t channels[]) {
     int packetsreceived;
     verbose = true;
     for (int i = 0 ; i < no_allowed_channels ; i++) {

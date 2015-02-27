@@ -23,7 +23,7 @@
 #include "a7105.h"
 
 
-volatile s16 Channels[NUM_OUT_CHANNELS];
+volatile int16_t Channels[NUM_OUT_CHANNELS];
 
 uint8_t drone_settings = 0x0e; // 02 is always on, 04 is leds, 08 is flips
 
@@ -111,7 +111,7 @@ static void update_crc()
         sum += packet[i];
     packet[15] = (256 - (sum % 256)) & 0xff;
 }
-static void hubsan_build_bind_packet(u8 state)
+static void hubsan_build_bind_packet(uint8_t state)
 {
     packet[0] = state;
     packet[1] = channel;
@@ -135,14 +135,14 @@ static void hubsan_build_bind_packet(u8 state)
     update_crc();
 }
 
-s16 get_channel(u8 ch, s32 scale, s32 center, s32 range)
+int16_t get_channel(uint8_t ch, int32_t scale, int32_t center, int32_t range)
 {
   static int a=0;
   if (a++<2550) return 0;
   
 //  return 254;
   return 128;
-  s32 value = (s32)Channels[ch] * scale / CHAN_MAX_VALUE + center;
+  int32_t value = (int32_t)Channels[ch] * scale / CHAN_MAX_VALUE + center;
     if (value < center - range)
         value = center - range;
     if (value >= center + range)
@@ -180,7 +180,7 @@ static void hubsan_build_packet()
     update_crc();
 }
 
-static u16 hubsan_cb()
+static uint16_t hubsan_cb()
 {
     RED_ON()
     int i, j;

@@ -13,14 +13,14 @@
 #define CS_LO() digitalWrite(CS_PIN, LOW);
 
 bool verbose;
-u8 packet[16];
-u8 testpacket[16];
-u8 receivedpacket[16];
-u8 channel;
+uint8_t packet[16];
+uint8_t testpacket[16];
+uint8_t receivedpacket[16];
+uint8_t channel;
 unsigned long sessionid;
 const unsigned long txid = 0xdb042679; // transmitter ID
-u8 state;
-int startTime, waitTime, hubsanWait, finishTime;
+uint8_t state;
+int8_t startTime, waitTime, hubsanWait, finishTime;
   
 
 // strobe commands. These are used to set the transceiver mode
@@ -92,8 +92,13 @@ m};
 #define A7105_0F_CHANNEL A7105_0F_PLL_I
 
 enum A7105_MASK {
-    A7105_MASK_FBCF = 1 << 4,
-    A7105_MASK_VBCF = 1 << 3,
+    A7105_MASK_FECF = 1 << 6,
+    A7105_MASK_CRCF = 1 << 5,
+    A7105_MASK_CER = 1 << 4,
+    A7105_MASK_XER = 1 << 3,
+    A7105_MASK_PLLER = 1 << 2,
+    A7105_MASK_TRSR = 1 << 1,
+    A7105_MASK_TRER = 1 << 0
 };
 
 
@@ -110,34 +115,34 @@ void A7105_SetPower(int power);
 void A7105_Strobe(enum A7105_State);
 
 // Access the current value of the transmitter ID
-void A7105_WriteID(u32 id);
+void A7105_WriteID(uint32_t id);
 void A7105_ReadID();
 
 // Access an arbitrary register, given by addr
-void A7105_WriteReg(u8 addr, u8 value);
-u8 A7105_ReadReg(u8 addr);
+void A7105_WriteReg(uint8_t addr, uint8_t value);
+uint8_t A7105_ReadReg(uint8_t addr);
 
 // Transmit or receive data through the FIFO buffer with current settings
-void A7105_WriteData(u8 *dpbuffer, u8 len, u8 channel);
-void A7105_ReadData(u8 *dpbuffer, u8 len);
+void A7105_WriteData(uint8_t *dpbuffer, uint8_t len, uint8_t channel);
+void A7105_ReadData(uint8_t *dpbuffer, uint8_t len);
 
 // Build a distinctive test packet
-void make_test_packet(u8 testpacket[]);
+void make_test_packet(uint8_t testpacket[]);
 
 // Print the provided packet in human-readable format
-void printpacket(u8 packet[]);
+void printpacket(uint8_t packet[]);
 
 // Eavesdrop on a hubsan exchange. This must be started prior to the binding exchange
-void eavesdrop(u32 sess_id, u8 sess_channel);
+void eavesdrop(uint32_t sess_id, uint8_t sess_channel);
 
 // Shout a test packet on the current channel
 void A7105_shoutchannel();
 
 // Scan list of wireless channels for traffic
-void A7105_scanchannels(const u8 channels[]);
+void A7105_scanchannels(const uint8_t channels[]);
 
 // sniff either the current channel or a given channel
-void A7105_sniffchannel(u8 _channel);
+void A7105_sniffchannel(uint8_t _channel);
 int A7105_sniffchannel();
 
 #endif

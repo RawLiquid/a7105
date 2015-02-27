@@ -4,13 +4,13 @@
 #define CHAN_MULTIPLIER 100
 #define CHAN_MAX_VALUE (100 * CHAN_MULTIPLIER)
 
-#define s16 int16_t
-#define u16 uint16_t
-#define s32 int32_t
-#define u32 uint32_t
-#define u8 uint8_t
+#define int16_t int16_t
+#define uint16_t uint16_t
+#define int32_t int32_t
+#define uint32_t uint32_t
+#define uint8_t uint8_t
 
-extern volatile s16 Channels[NUM_OUT_CHANNELS];
+extern volatile int16_t Channels[NUM_OUT_CHANNELS];
 
 enum TxPower {
     TXPOWER_100uW,
@@ -39,4 +39,4 @@ enum ProtoCmds {
 };
 
 
-void PROTOCOL_SetBindState(u32 msec);
+void PROTOCOL_SetBindState(uint32_t msec);
